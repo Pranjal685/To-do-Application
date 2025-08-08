@@ -1,0 +1,282 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222.2 84% 4.9%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 222.2 84% 4.9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 222.2 84% 4.9%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 224.3 76.3% 94.1%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer components {
+  .animate-in {
+    animation: animateIn 0.3s ease-out;
+  }
+
+  .animate-out {
+    animation: animateOut 0.2s ease-in;
+  }
+
+  @keyframes animateIn {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes animateOut {
+    from {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    to {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+  }
+
+  .glass-effect {
+    @apply bg-white/10 backdrop-blur-md border border-white/20;
+  }
+
+  .dark .glass-effect {
+    @apply bg-black/10 backdrop-blur-md border border-white/10;
+  }
+
+  .gradient-text {
+    @apply bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent;
+  }
+
+  .task-card {
+    @apply bg-card border border-border rounded-lg p-4 shadow-sm hover:shadow-md transition-all duration-200;
+  }
+
+  .task-card:hover {
+    @apply border-primary/50 shadow-lg;
+  }
+
+  .kanban-column {
+    @apply bg-muted/50 rounded-lg p-3 md:p-4 min-h-[480px] w-full;
+  }
+
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--muted-foreground)) transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--muted-foreground));
+    border-radius: 3px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background-color: hsl(var(--foreground));
+  }
+}
+
+/* Custom focus styles for accessibility */
+@layer utilities {
+  .focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+}
+
+/* Loading animations */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Smooth transitions for theme switching */
+* {
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+/* Custom select and option styles for dropdown visibility */
+select, select:focus, select:active {
+  background-color: hsl(var(--card));
+  color: hsl(var(--foreground));
+}
+
+option {
+  background-color: hsl(var(--card));
+  color: hsl(var(--foreground));
+}
+
+.dark select, .dark select:focus, .dark select:active {
+  background-color: hsl(var(--card));
+  color: hsl(var(--foreground));
+}
+
+.dark option {
+  background-color: hsl(var(--card));
+  color: hsl(var(--foreground));
+}
+
+/* Fix for react-hook-form + Input: always ensure name attribute is present */
+input[name] {
+  box-shadow: none;
+}
+
+/* Forceful Custom DatePicker Styles */
+:global(.custom-datepicker .react-datepicker-popper) {
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  z-index: 9999 !important;
+}
+:global(.custom-datepicker .react-datepicker__month-container) {
+  background: hsl(var(--card)) !important;
+  border-radius: 1rem !important;
+  box-shadow: 0 8px 32px 0 rgba(0,0,0,0.18) !important;
+  border: 1.5px solid hsl(var(--border)) !important;
+  overflow: hidden !important;
+}
+:global(.custom-datepicker .react-datepicker__header) {
+  background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--accent))) !important;
+  color: #fff !important;
+  border-bottom: none !important;
+  border-radius: 1rem 1rem 0 0 !important;
+  padding-top: 1rem !important;
+}
+:global(.custom-datepicker .react-datepicker__current-month),
+:global(.custom-datepicker .react-datepicker-time__header),
+:global(.custom-datepicker .react-datepicker-year-header) {
+  color: #fff !important;
+  font-weight: 600 !important;
+}
+:global(.custom-datepicker .react-datepicker__day),
+:global(.custom-datepicker .react-datepicker__day-name) {
+  color: hsl(var(--foreground)) !important;
+  font-weight: 500 !important;
+  border-radius: 0.5rem !important;
+  transition: background 0.2s, color 0.2s !important;
+}
+:global(.custom-datepicker .react-datepicker__day--selected),
+:global(.custom-datepicker .react-datepicker__day--keyboard-selected) {
+  background: hsl(var(--primary)) !important;
+  color: #fff !important;
+}
+:global(.custom-datepicker .react-datepicker__day:hover) {
+  background: hsl(var(--primary) / 0.15) !important;
+  color: hsl(var(--primary)) !important;
+}
+:global(.custom-datepicker .react-datepicker__day--today) {
+  border: 2px solid hsl(var(--primary)) !important;
+}
+:global(.custom-datepicker .react-datepicker__time-container) {
+  border-radius: 0 1rem 1rem 0 !important;
+  background: hsl(var(--card)) !important;
+  border-left: 1.5px solid hsl(var(--border)) !important;
+}
+:global(.custom-datepicker .react-datepicker__time-container .react-datepicker__time) {
+  background: hsl(var(--card)) !important;
+  color: hsl(var(--foreground)) !important;
+  border-radius: 0 0 1rem 1rem !important;
+}
+:global(.custom-datepicker .react-datepicker__time-list-item--selected) {
+  background: hsl(var(--primary)) !important;
+  color: #fff !important;
+}
+:global(.custom-datepicker .react-datepicker__time-list-item:hover) {
+  background: hsl(var(--primary) / 0.15) !important;
+  color: hsl(var(--primary)) !important;
+}
+:global(.custom-datepicker .react-datepicker__navigation) {
+  top: 1.2rem !important;
+}
+:global(.custom-datepicker .react-datepicker__triangle) {
+  display: none !important;
+}
+
+:global(.dark .custom-datepicker .react-datepicker__header) {
+  background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--accent))) !important;
+  color: #fff !important;
+}
+:global(.dark .custom-datepicker .react-datepicker__month-container) {
+  background: hsl(var(--card)) !important;
+}
+:global(.dark .custom-datepicker .react-datepicker__day),
+:global(.dark .custom-datepicker .react-datepicker__day-name) {
+  color: hsl(var(--foreground)) !important;
+}
