@@ -9,6 +9,8 @@ import Dashboard from './pages/Dashboard';
 import KanbanBoard from './pages/KanbanBoard';
 import Calendar from './pages/Calendar';
 import Analytics from './pages/Analytics';
+import AIAnalyticsPage from './pages/AIAnalytics';
+import AssistantPage from './pages/Assistant';
 import Projects from './pages/Projects';
 import Settings from './pages/Settings';
 import PomodoroPage from './pages/Pomodoro';
@@ -49,6 +51,8 @@ function App() {
                           <Route path="/kanban" element={<KanbanBoard />} />
                           <Route path="/calendar" element={<Calendar />} />
                           <Route path="/analytics" element={<Analytics />} />
+                          <Route path="/ai-analytics" element={<AIAnalyticsPage />} />
+                          <Route path="/chat" element={<AssistantPage />} />
                           <Route path="/projects" element={<Projects />} />
                           <Route path="/pomodoro" element={<PomodoroPage />} />
                           <Route path="/settings" element={<Settings />} />
