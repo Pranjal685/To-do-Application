@@ -6,7 +6,12 @@ export interface PomodoroSettings {
   focusMinutes: number;
   shortBreakMinutes: number;
   longBreakMinutes: number;
-  autoStartNext: boolean;
+  longBreakEvery: number; // N focus sessions before long break
+  cyclesPerBlock: number; // number of focus sessions per block
+  autoStartNextPhase: boolean; // auto-start next phase (focus/break)
+  autoStartNextPom: boolean; // auto-start next Pom after a block
+  enableNotifications: boolean;
+  enableSounds: boolean;
 }
 
 export interface CalendarSettings {
@@ -57,7 +62,12 @@ const DEFAULT_SETTINGS: AppSettings = {
     focusMinutes: 25,
     shortBreakMinutes: 5,
     longBreakMinutes: 15,
-    autoStartNext: false,
+    longBreakEvery: 4,
+    cyclesPerBlock: 4,
+    autoStartNextPhase: false,
+    autoStartNextPom: false,
+    enableNotifications: true,
+    enableSounds: true,
   },
 };
 

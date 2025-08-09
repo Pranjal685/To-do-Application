@@ -1,4 +1,3 @@
-import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
@@ -12,6 +11,7 @@ import Calendar from './pages/Calendar';
 import Analytics from './pages/Analytics';
 import Projects from './pages/Projects';
 import Settings from './pages/Settings';
+import PomodoroPage from './pages/Pomodoro';
 import Login from './pages/Login';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import './index.css';
@@ -21,7 +21,7 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 5 * 60 * 1000, // 5 minutes
-      cacheTime: 10 * 60 * 1000, // 10 minutes
+      gcTime: 10 * 60 * 1000, // 10 minutes
     },
   },
 });
@@ -50,6 +50,7 @@ function App() {
                           <Route path="/calendar" element={<Calendar />} />
                           <Route path="/analytics" element={<Analytics />} />
                           <Route path="/projects" element={<Projects />} />
+                          <Route path="/pomodoro" element={<PomodoroPage />} />
                           <Route path="/settings" element={<Settings />} />
                         </Routes>
                       </Layout>

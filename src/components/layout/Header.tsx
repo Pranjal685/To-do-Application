@@ -1,12 +1,12 @@
-import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Button } from '@/components/ui/Button';
-import { Brain, Moon, Sun, Settings, LogOut, User } from 'lucide-react';
+import { Brain, Moon, Sun, LogOut, User } from 'lucide-react';
+import MiniPlayer from '@/components/pomodoro/MiniPlayer';
 
 export default function Header() {
   const { user, signOut } = useAuth();
-  const { theme, setTheme, actualTheme } = useTheme();
+  const { setTheme, actualTheme } = useTheme();
 
   const toggleTheme = () => {
     setTheme(actualTheme === 'dark' ? 'light' : 'dark');
@@ -35,6 +35,9 @@ export default function Header() {
               <Moon className="w-4 h-4" />
             )}
           </Button>
+
+          {/* Mini Pomodoro player pinned in header (provider is at Layout) */}
+          <MiniPlayer />
 
           <div className="flex items-center space-x-2">
             <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">

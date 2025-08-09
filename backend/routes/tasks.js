@@ -61,4 +61,39 @@ router.delete('/:id', authMiddleware, async (req, res) => {
   res.json({ success: true });
 });
 
+// Log Pomodoro session to task
+router.post('/:id/pomodoro', authMiddleware, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { duration, type, interruptions, completed } = req.body;
+    const user_id = req.user.id;
+    
+    // Verify task ownership
+    const taskResult = await pool.query('SELECT * FROM tasks WHERE id = $1 AND user_id = $2', [id, user_id]);
+    if (taskResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Task not found' });
+    }
+    
+    const task = taskResult.rows[0];
+    
+    // Update task's actual_duration if it's a completed focus session
+    if (type === 'work' && completed) {
+      const newActualDuration = (task.actual_duration || 0) + duration;
+      await pool.query(
+        'UPDATE tasks SET actual_duration = $1, updated_at = NOW() WHERE id = $2',
+        [newActualDuration, id]
+      );
+    }
+    
+    res.json({ 
+      success: true, 
+      message: `Logged ${duration}min ${type} session to task`,
+      actualDuration: type === 'work' && completed ? (task.actual_duration || 0) + duration : task.actual_duration
+    });
+  } catch (err) {
+    console.error('Error logging Pomodoro session:', err);
+    res.status(400).json({ error: err.message });
+  }
+});
+
 export default router; 

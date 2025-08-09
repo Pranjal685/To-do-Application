@@ -61,3 +61,5 @@ export function CardFooter({ className, ...props }: CardFooterProps) {
     <div className={cn('flex items-center p-6 pt-0', className)} {...props} />
   );
 }
+
+export default Card;

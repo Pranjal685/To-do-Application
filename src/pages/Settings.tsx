@@ -1,4 +1,4 @@
-import React, { useMemo, useRef } from 'react';
+import { useMemo, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Settings as SettingsIcon, Bell, Flag, RefreshCw, Calendar as CalendarIcon, Download, Upload } from 'lucide-react';
@@ -306,22 +306,82 @@ export default function Settings() {
                       }
                     />
                   </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Long break every (N focus)</label>
+                    <Input
+                      type="number"
+                      min={1}
+                      value={settings.pomodoro.longBreakEvery}
+                      onChange={(e) =>
+                        updateSettings({ pomodoro: { ...settings.pomodoro, longBreakEvery: Number(e.target.value) } })
+                      }
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Cycles per block</label>
+                    <Input
+                      type="number"
+                      min={1}
+                      value={settings.pomodoro.cyclesPerBlock}
+                      onChange={(e) =>
+                        updateSettings({ pomodoro: { ...settings.pomodoro, cyclesPerBlock: Number(e.target.value) } })
+                      }
+                    />
+                  </div>
                 </div>
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <RefreshCw className="w-4 h-4" />
                   <div>
-                    <p className="font-medium">Auto-start next session</p>
-                    <p className="text-sm text-muted-foreground">Automatically start the next Pomodoro or break</p>
+                    <p className="font-medium">Auto-start next phase</p>
+                    <p className="text-sm text-muted-foreground">Automatically start the next focus/break phase</p>
                   </div>
                 </div>
                 <Switch
-                  checked={settings.pomodoro.autoStartNext}
+                  checked={settings.pomodoro.autoStartNextPhase}
                   onCheckedChange={(v) =>
-                    updateSettings({ pomodoro: { ...settings.pomodoro, autoStartNext: v } })
+                    updateSettings({ pomodoro: { ...settings.pomodoro, autoStartNextPhase: v } })
                   }
                 />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium">Auto-start next Pom</p>
+                    <p className="text-sm text-muted-foreground">Start next Pomodoro block automatically</p>
+                  </div>
+                  <Switch
+                    checked={settings.pomodoro.autoStartNextPom}
+                    onCheckedChange={(v) =>
+                      updateSettings({ pomodoro: { ...settings.pomodoro, autoStartNextPom: v } })
+                    }
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium">Notifications</p>
+                    <p className="text-sm text-muted-foreground">Show desktop alerts when a session ends</p>
+                  </div>
+                  <Switch
+                    checked={settings.pomodoro.enableNotifications}
+                    onCheckedChange={(v) =>
+                      updateSettings({ pomodoro: { ...settings.pomodoro, enableNotifications: v } })
+                    }
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium">Sounds</p>
+                    <p className="text-sm text-muted-foreground">Play chimes and ambient sounds</p>
+                  </div>
+                  <Switch
+                    checked={settings.pomodoro.enableSounds}
+                    onCheckedChange={(v) =>
+                      updateSettings({ pomodoro: { ...settings.pomodoro, enableSounds: v } })
+                    }
+                  />
+                </div>
               </div>
             </CardContent>
           </Card>
