@@ -6,7 +6,7 @@ function toDateOnly(date) {
 }
 
 export async function aggregateForDate(targetDate) {
-  const model = process.env.AI_MODEL || 'gemini-1.5-flash';
+  const model = process.env.AI_MODEL || 'qwen/qwen3-coder:free';
   const dayStart = new Date(targetDate);
   const dayEnd = new Date(dayStart.getTime() + 24 * 3600 * 1000 - 1);
 

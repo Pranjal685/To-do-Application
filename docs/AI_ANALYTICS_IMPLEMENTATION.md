@@ -1,6 +1,6 @@
 ## AI Analytics Page — Implementation Plan
 
-This document defines the end‑to‑end plan to implement an AI Analytics page for the project. It is tailored to the current stack (Express + PostgreSQL + React + Recharts) and assumes Gemini as the LLM provider.
+This document defines the end‑to‑end plan to implement an AI Analytics page for the project. It is tailored to the current stack (Express + PostgreSQL + React + Recharts) and assumes an OpenRouter‑compatible LLM provider (default: Qwen3 Coder free via OpenRouter).
 
 ### Objectives
 - **Visibility**: Understand assistant adoption, performance, quality, and cost.
@@ -45,8 +45,9 @@ This document defines the end‑to‑end plan to implement an AI Analytics page 
 - `.env` (backend)
   - `PGHOST, PGPORT, PGDATABASE, PGUSER, PGPASSWORD`
   - `JWT_SECRET`
-  - `GOOGLE_API_KEY`
-  - Optional: `AI_MODEL=gemini-1.5-flash`
+  - `OPENROUTER_API_KEY`
+  - Optional: `OPENROUTER_BASE_URL=https://openrouter.ai/api/v1`
+  - Optional: `AI_MODEL=qwen/qwen3-coder:free`
 
 ### Database Schema
 
@@ -120,7 +121,7 @@ CREATE TABLE IF NOT EXISTS ai_messages (
 ### Backend Changes
 
 - Dependencies
-  - `@google/generative-ai`, `zod`, `chrono-node`, `eventsource-parser`
+  - `openai`, `zod`, `chrono-node`, `eventsource-parser`
   - Optional: `express-rate-limit`, `pino` for logs
 
 - Routes
@@ -204,7 +205,7 @@ Response: Array<{ date: string, inputTokens: number, outputTokens: number, costU
 ### Progress Tracking (Phases with Text Bars)
 
 - **Phase 0 — Foundations** `[#####-----] 50%`
-  - Gemini decision and env keys
+  - Provider decision and env keys
   - KPIs and schema definition
   - Repo scan/prereqs
 

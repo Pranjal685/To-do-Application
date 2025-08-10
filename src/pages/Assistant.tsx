@@ -1,11 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { useAssistant } from '@/hooks/useAssistant';
+import { Button as UIButton } from '@/components/ui/Button';
+import ThreadSidebar from '@/components/assistant/ThreadSidebar';
 
 export default function AssistantPage() {
-  const { messages, isSending, sendMessage, clearChat } = useAssistant();
+  const { messages, isSending, sendMessage, clearChat, threads, activeThreadId, createThread, switchThread, renameThread, deleteThread } = useAssistant();
   const [input, setInput] = useState('');
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(() => {
+    try { return localStorage.getItem('ai_sidebar_collapsed') === '1'; } catch { return false; }
+  });
 
   const onSend = () => {
     if (!input.trim()) return;
@@ -13,14 +19,31 @@ export default function AssistantPage() {
     setInput('');
   };
 
+  // Auto-scroll to bottom when new messages arrive
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  const toggleSidebar = () => {
+    const next = !sidebarCollapsed;
+    setSidebarCollapsed(next);
+    try { localStorage.setItem('ai_sidebar_collapsed', next ? '1' : '0'); } catch {}
+  };
+
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-foreground">AI Assistant</h1>
-        <p className="text-muted-foreground mt-1">Chat to create and manage tasks through natural language.</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">AI Assistant</h1>
+          <p className="text-muted-foreground mt-1">Chat to create and manage tasks through natural language.</p>
+        </div>
+        <div className="flex gap-2">
+          <UIButton variant="secondary" onClick={() => createThread('New chat')} title="Start a new chat thread">New chat</UIButton>
+          <UIButton variant="ghost" onClick={clearChat} title="Clear messages in the current chat without deleting the thread">Clear</UIButton>
+        </div>
       </div>
 
-      <Card>
+      <Card className={`transition-all duration-300 ${sidebarCollapsed ? 'ml-64' : 'ml-128'}`.replace('ml-128','ml-[32rem]')}>
         <CardHeader>
           <CardTitle>Chat</CardTitle>
         </CardHeader>
@@ -39,6 +62,7 @@ export default function AssistantPage() {
                 </div>
               </div>
             ))}
+            <div ref={messagesEndRef} />
           </div>
 
           <div className="mt-3 flex gap-2">
@@ -50,10 +74,21 @@ export default function AssistantPage() {
               onKeyDown={(e) => e.key === 'Enter' && onSend()}
             />
             <Button onClick={onSend} disabled={isSending}>Send</Button>
-            <Button variant="secondary" onClick={clearChat}>Clear</Button>
+            <Button variant="secondary" onClick={clearChat} title="Clear chat history and reset conversation">Clear</Button>
           </div>
         </CardContent>
       </Card>
+      {/* Thread sidebar */}
+      <ThreadSidebar
+        threads={threads}
+        activeId={activeThreadId}
+        onCreate={() => createThread('New chat')}
+        onSwitch={switchThread}
+        onRename={renameThread}
+        onDelete={deleteThread}
+        collapsed={sidebarCollapsed}
+        onToggle={toggleSidebar}
+      />
     </div>
   );
 }
