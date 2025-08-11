@@ -16,21 +16,29 @@ function authMiddleware(req, res, next) {
   }
 }
 
-// Get all tasks for user
-router.get('/', async (req, res) => {
-  const id = 1; // DEV: hardcoded admin user id
-  const result = await pool.query('SELECT * FROM tasks WHERE user_id = $1 ORDER BY created_at DESC', [id]);
-  res.json(result.rows);
+// Get all tasks for authenticated user
+router.get('/', authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const result = await pool.query(
+      'SELECT * FROM tasks WHERE user_id = $1 ORDER BY created_at DESC',
+      [userId]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Error fetching tasks:', err);
+    res.status(400).json({ error: err.message });
+  }
 });
 
 // Create task
 router.post('/', authMiddleware, async (req, res) => {
   try {
-    const { title, description, priority, due_date, tags, project_id } = req.body;
+    const { title, description, priority, due_date, tags, project_id, estimated_duration } = req.body;
     const user_id = req.user.id;
     const result = await pool.query(
-      'INSERT INTO tasks (title, description, status, priority, user_id, due_date, tags, created_at, updated_at, project_id) VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), NOW(), $8) RETURNING *',
-      [title, description, 'todo', priority, user_id, due_date, tags || [], project_id]
+      'INSERT INTO tasks (title, description, status, priority, user_id, due_date, tags, estimated_duration, created_at, updated_at, project_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW(), $9) RETURNING *',
+      [title, description, 'todo', priority, user_id, due_date, tags || [], estimated_duration, project_id]
     );
     res.json(result.rows[0]);
   } catch (err) {

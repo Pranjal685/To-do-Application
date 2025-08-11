@@ -9,6 +9,19 @@ export function useTasks() {
   const { user, token } = useAuth();
   const queryClient = useQueryClient();
 
+  const dedupeById = (list: Task[]): Task[] => {
+    const seen = new Set<string>();
+    const result: Task[] = [];
+    for (const t of list || []) {
+      const key = String((t as any).id);
+      if (!seen.has(key)) {
+        seen.add(key);
+        result.push(t);
+      }
+    }
+    return result;
+  };
+
   const {
     data: tasks = [],
     isLoading,
@@ -22,9 +35,11 @@ export function useTasks() {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) throw new Error('Failed to fetch tasks');
-      return await res.json();
+      const data = await res.json();
+      return dedupeById(data);
     },
     enabled: !!user && !!token,
+    select: (data) => dedupeById(data as Task[]),
   });
 
   const createTaskMutation = useMutation({
@@ -42,7 +57,19 @@ export function useTasks() {
       return await res.json();
     },
     onSuccess: (newTask) => {
-      queryClient.setQueryData(['tasks', user?.id], (old: Task[] = []) => [newTask, ...old]);
+      queryClient.setQueryData(['tasks', user?.id], (old: Task[] = []) => {
+        const merged = [newTask, ...old];
+        // Deduplicate by id to avoid double-counting during background refetches
+        const seen = new Set<string>();
+        const list: Task[] = [];
+        for (const t of merged) {
+          const key = String((t as any).id);
+          if (!seen.has(key)) { seen.add(key); list.push(t); }
+        }
+        return list;
+      });
+      // Fetch authoritative list from server to prevent any cache drift
+      queryClient.invalidateQueries({ queryKey: ['tasks', user?.id] });
       toast.success('Task created successfully!');
     },
     onError: (error) => {
@@ -67,7 +94,7 @@ export function useTasks() {
     },
     onSuccess: (updatedTask) => {
       queryClient.setQueryData(['tasks', user?.id], (old: Task[] = []) =>
-        old.map((task) => (task.id === updatedTask.id ? updatedTask : task))
+        old.map((task) => (String(task.id) === String(updatedTask.id) ? updatedTask : task))
       );
       toast.success('Task updated successfully!');
     },
@@ -88,8 +115,10 @@ export function useTasks() {
     },
     onSuccess: (_, deletedId) => {
       queryClient.setQueryData(['tasks', user?.id], (old: Task[] = []) =>
-        old.filter((task) => task.id !== deletedId)
+        old.filter((task) => String(task.id) !== String(deletedId))
       );
+      // Ensure server truth in case of id type mismatches
+      queryClient.invalidateQueries({ queryKey: ['tasks', user?.id] });
       toast.success('Task deleted successfully!');
     },
     onError: (error) => {

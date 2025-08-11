@@ -423,9 +423,12 @@ If nothing relevant, return {}.`;
         if (prefs) merged.preferences = prefs;
       }
 
-      // Description fallback
+      // Description fallback - only use raw text if it's not a task creation command
       if (!merged.description && rawText.length > 1 && !looksLikeTitle(rawText)) {
-        merged.description = rawText;
+        // Don't use the original command as description for task creation
+        if (!/\b(create|add)\b.*\btask\b/i.test(rawText)) {
+          merged.description = rawText;
+        }
       }
     }
 

@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/Button';
 import { useAssistant } from '@/hooks/useAssistant';
 import { Button as UIButton } from '@/components/ui/Button';
 import ThreadSidebar from '@/components/assistant/ThreadSidebar';
+import { ChevronRight, ChevronLeft } from 'lucide-react';
 
 export default function AssistantPage() {
   const { messages, isSending, sendMessage, clearChat, threads, activeThreadId, createThread, switchThread, renameThread, deleteThread } = useAssistant();
@@ -30,8 +31,23 @@ export default function AssistantPage() {
     try { localStorage.setItem('ai_sidebar_collapsed', next ? '1' : '0'); } catch {}
   };
 
+  const contentOffsetClass = sidebarCollapsed ? '' : 'ml-64';
+
   return (
-    <div className="space-y-6">
+    <div className={`space-y-6 transition-all duration-300 ${contentOffsetClass}`}>
+      <UIButton
+        variant="secondary"
+        size="icon"
+        title={sidebarCollapsed ? "Expand chats" : "Collapse chats"}
+        onClick={toggleSidebar}
+        className="fixed left-64 top-20 z-40"
+      >
+        {sidebarCollapsed ? (
+          <ChevronRight className="w-4 h-4" />
+        ) : (
+          <ChevronLeft className="w-4 h-4" />
+        )}
+      </UIButton>
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-foreground">AI Assistant</h1>
@@ -43,12 +59,12 @@ export default function AssistantPage() {
         </div>
       </div>
 
-      <Card className={`transition-all duration-300 ${sidebarCollapsed ? 'ml-64' : 'ml-128'}`.replace('ml-128','ml-[32rem]')}>
+      <Card className="transition-all duration-300">
         <CardHeader>
           <CardTitle>Chat</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="h-[50vh] overflow-y-auto space-y-3 p-2 border rounded-md bg-background">
+          <div className="h-[50vh] overflow-y-auto space-y-3 p-2 border rounded-md bg-background scrollbar">
             {messages.length === 0 && (
               <div className="text-sm text-muted-foreground">Start by asking: "Create a high priority task to review PR tomorrow 4pm"</div>
             )}

@@ -333,7 +333,7 @@ export default function Projects() {
               <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={(e) => handleDragEnd(e, pinnedProjects, true)}>
                 <SortableContext items={pinnedProjects.map((p) => p.id)} strategy={view === 'grid' ? rectSortingStrategy : verticalListSortingStrategy}>
                   {view === 'grid' ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 max-h-[70vh] overflow-y-auto pr-2 scrollbar">
                       {pinnedProjects.map((project) => (
                         <SortableWrapper key={project.id} id={project.id}>
                           <ProjectCard
@@ -350,7 +350,7 @@ export default function Projects() {
                       ))}
                     </div>
                   ) : (
-                    <div className="rounded-lg border border-border overflow-hidden">
+                  <div className="rounded-lg border border-border overflow-hidden max-h-[70vh] overflow-y-auto scrollbar">
                       {pinnedProjects.map((project) => (
                         <SortableWrapper key={project.id} id={project.id}>
                           <ProjectRow
@@ -379,7 +379,7 @@ export default function Projects() {
             <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={(e) => handleDragEnd(e, otherProjects, false)}>
               <SortableContext items={otherProjects.map((p) => p.id)} strategy={view === 'grid' ? rectSortingStrategy : verticalListSortingStrategy}>
                 {view === 'grid' ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 max-h-[70vh] overflow-y-auto pr-2 scrollbar">
                     {otherProjects.map((project) => (
                       <SortableWrapper key={project.id} id={project.id}>
                         <ProjectCard
@@ -396,7 +396,7 @@ export default function Projects() {
                     ))}
                   </div>
                 ) : (
-                  <div className="rounded-lg border border-border overflow-hidden">
+                  <div className="rounded-lg border border-border overflow-hidden max-h-[70vh] overflow-y-auto scrollbar">
                     {/* Header */}
                     <div className="grid grid-cols-12 gap-4 px-3 py-2 text-xs uppercase tracking-wide text-muted-foreground bg-muted/40">
                       <div className="col-span-5">Project</div>

@@ -165,16 +165,49 @@ export function useAssistant() {
         if (isYes && flowState?.confirmationReady) {
           // Confirm using cached flow state (idempotent)
           const v = flowState.values || {};
+          // Build a robust description from extracted values. Avoid using the original user command.
+          const buildDescription = (val: any): string => {
+            const looksLikeCommand = (text?: string): boolean => {
+              if (!text) return false;
+              const t = String(text).toLowerCase();
+              return /\b(create|add)\b.*\btask\b/.test(t) || /\bpomodoro\b|\b\d+\s*\/\s*\d+\b|\bx\s*\d+\b/.test(t);
+            };
+            const lines: string[] = [];
+            lines.push(`Task: ${val.title || 'Untitled task'}`);
+            if (val.priority) lines.push(`Priority: ${val.priority}`);
+            if (val.due_date) {
+              try { lines.push(`Due: ${new Date(val.due_date).toLocaleString()}`); } catch { lines.push(`Due: ${val.due_date}`); }
+            }
+            if (val.duration_minutes || val.break_interval_minutes || val.break_count != null) {
+              lines.push('');
+              lines.push('Pomodoro Settings:');
+              if (val.duration_minutes) lines.push(`- Focus Duration: ${val.duration_minutes} minutes`);
+              if (val.break_interval_minutes) lines.push(`- Break Interval: ${val.break_interval_minutes} minutes`);
+              if (val.break_count != null) lines.push(`- Break Count: ${val.break_count} cycles`);
+            }
+            if (Array.isArray(val.subtasks) && val.subtasks.length) {
+              lines.push('');
+              lines.push('Subtasks:');
+              for (const s of val.subtasks) lines.push(`- ${s}`);
+            }
+            if (val.description && !looksLikeCommand(val.description)) {
+              lines.push('');
+              lines.push(val.description);
+            }
+            return lines.join('\n');
+          };
+
           const createRes = await fetch('http://localhost:4000/tasks', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
             body: JSON.stringify({
               title: v.title,
-              description: v.description || '',
+              description: buildDescription(v),
               priority: v.priority || 'medium',
               due_date: v.due_date,
               tags: v.tags || [],
               project_id: v.project_id,
+              estimated_duration: v.duration_minutes,
             })
           });
           assistantContent = createRes.ok ? 'Task created successfully!' : 'Failed to create task. Please try again.';

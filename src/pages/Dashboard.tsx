@@ -15,6 +15,7 @@ import {
 import { useTasks } from '@/hooks/useTasks';
 import { useProjects } from '@/hooks/useProjects';
 import CreateTaskModal from '@/components/tasks/CreateTaskModal';
+import EditTaskModal from '@/components/tasks/EditTaskModal';
 import TaskCard from '@/components/tasks/TaskCard';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import { useSettings } from '@/contexts/SettingsContext';
@@ -24,6 +25,8 @@ export default function Dashboard() {
   const { projects, isLoading: projectsLoading } = useProjects();
   const { settings } = useSettings();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [editingTask, setEditingTask] = useState<null | any>(null);
+  // Recent tasks list will have its own scroll area; no need for page-level scroll
 
   const priorityOrder: Record<string, number> = { urgent: 0, high: 1, medium: 2, low: 3 };
 
@@ -92,7 +95,7 @@ export default function Dashboard() {
     },
   ];
 
-  const recentTasks = visibleTasks.slice(0, 5);
+  const recentTasks = visibleTasks; // show all tasks within a scrollable container
 
   // Important: return after all hooks have been called to preserve hook order across renders
   if (tasksLoading || projectsLoading) {
@@ -198,13 +201,17 @@ export default function Dashboard() {
           >
             <Card>
               <CardHeader>
-                <CardTitle>Recent Tasks</CardTitle>
-                <CardDescription>Your latest task activity</CardDescription>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>Recent Tasks</CardTitle>
+                    <CardDescription>Your latest task activity</CardDescription>
+                  </div>
+                </div>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
+              <CardContent className="pt-0">
+                <div className="max-h-[60vh] overflow-y-auto pr-2 space-y-3 scrollbar">
                   {recentTasks.map((task) => (
-                    <TaskCard key={task.id} task={task} />
+                    <TaskCard key={task.id} task={task} onEdit={(t)=> setEditingTask(t)} />
                   ))}
                   {recentTasks.length === 0 && (
                     <p className="text-muted-foreground text-center py-8">
@@ -258,6 +265,7 @@ export default function Dashboard() {
         isOpen={isCreateModalOpen} 
         onClose={() => setIsCreateModalOpen(false)} 
       />
+      <EditTaskModal isOpen={!!editingTask} onClose={() => setEditingTask(null)} task={editingTask} />
     </div>
   );
 }

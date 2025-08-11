@@ -283,7 +283,7 @@ function InnerPomodoroPage() {
               <span className="ml-4 text-blue-400">On break: {formatTime(remainingMs)} remaining</span>
             )}
           </div>
-          <div className="max-h-64 overflow-y-auto divide-y divide-border">
+          <div className="max-h-64 overflow-y-auto divide-y divide-border scrollbar">
             {history.slice(0,50).map((h) => {
               const linkedTask = tasks.find((t: any) => t.id === h.task_id);
               return (

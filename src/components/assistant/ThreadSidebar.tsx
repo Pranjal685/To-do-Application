@@ -23,9 +23,6 @@ export default function ThreadSidebar({ threads, activeId, onCreate, onSwitch, o
         <h3 className="text-sm font-semibold text-foreground">Chats</h3>
         <div className="flex items-center gap-2">
           <Button size="sm" variant="secondary" onClick={onCreate}>New</Button>
-          <Button size="sm" variant="ghost" onClick={onToggle} title="Collapse">
-            <ChevronLeft className="w-4 h-4" />
-          </Button>
         </div>
       </div>
       <div className="space-y-1">

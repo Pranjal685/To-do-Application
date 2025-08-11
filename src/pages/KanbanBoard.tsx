@@ -6,6 +6,7 @@ import { Plus, MoreHorizontal } from 'lucide-react';
 import { useTasks } from '@/hooks/useTasks';
 import { useProjects } from '@/hooks/useProjects';
 import CreateTaskModal from '@/components/tasks/CreateTaskModal';
+import EditTaskModal from '@/components/tasks/EditTaskModal';
 import TaskCard from '@/components/tasks/TaskCard';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import { Task } from '@/types';
@@ -16,6 +17,7 @@ export default function KanbanBoard() {
   const { projects } = useProjects();
   const { settings } = useSettings();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [editingTask, setEditingTask] = useState<any | null>(null);
 
   if (isLoading) {
     return (
@@ -179,7 +181,7 @@ export default function KanbanBoard() {
                     </Button>
                   </div>
                 </CardHeader>
-                <CardContent className="space-y-3 p-4 md:p-5 pt-0">
+                <CardContent className="space-y-3 p-4 md:p-5 pt-0 max-h-[70vh] overflow-y-auto scrollbar">
                   {column.tasks.map((task, taskIndex) => (
                     <motion.div
                       key={task.id}
@@ -187,7 +189,7 @@ export default function KanbanBoard() {
                       animate={{ opacity: 1, scale: 1 }}
                       transition={{ duration: 0.3, delay: taskIndex * 0.05 }}
                     >
-                      <TaskCard task={task} />
+                      <TaskCard task={task} onEdit={(t) => setEditingTask(t)} />
                     </motion.div>
                   ))}
 
@@ -211,6 +213,7 @@ export default function KanbanBoard() {
         isOpen={isCreateModalOpen} 
         onClose={() => setIsCreateModalOpen(false)} 
       />
+      <EditTaskModal isOpen={!!editingTask} onClose={() => setEditingTask(null)} task={editingTask} />
     </div>
   );
 }
