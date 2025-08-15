@@ -1,23 +1,40 @@
 import React, { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { DndContext, DragEndEvent, DragOverEvent, DragOverlay, DragStartEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
+
 import { Button } from '@/components/ui/Button';
-import { Plus, MoreHorizontal } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { useTasks } from '@/hooks/useTasks';
 import { useProjects } from '@/hooks/useProjects';
 import CreateTaskModal from '@/components/tasks/CreateTaskModal';
 import EditTaskModal from '@/components/tasks/EditTaskModal';
+import DroppableColumn from '@/components/tasks/DroppableColumn';
 import TaskCard from '@/components/tasks/TaskCard';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import { Task } from '@/types';
 import { useSettings } from '@/contexts/SettingsContext';
+import toast from 'react-hot-toast';
+import { Card, CardContent } from '@/components/ui/Card';
+
 
 export default function KanbanBoard() {
-  const { tasks, isLoading } = useTasks();
+  const { tasks, isLoading, updateTask } = useTasks();
   const { projects } = useProjects();
   const { settings } = useSettings();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<any | null>(null);
+  const [activeTask, setActiveTask] = useState<Task | null>(null);
+
+  // Configure sensors for drag and drop
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    })
+  );
+
+
 
   if (isLoading) {
     return (
@@ -54,34 +71,86 @@ export default function KanbanBoard() {
     return map;
   }, [projects]);
 
+  // Drag and drop event handlers
+  const handleDragStart = (event: DragStartEvent) => {
+    const { active } = event;
+    const task = tasks.find(t => t.id === active.id);
+    if (task) {
+      setActiveTask(task);
+    }
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    setActiveTask(null);
+
+    if (!over) {
+      return;
+    }
+
+    const taskId = active.id as string;
+    const newStatus = over.id as string;
+
+    // Validate that the drop target is a valid column
+    const validStatuses = ['todo', 'in_progress', 'review', 'done'];
+    if (!validStatuses.includes(newStatus)) {
+      return;
+    }
+
+    // Only update if the status actually changed
+    const task = tasks.find(t => t.id === taskId);
+    if (task && task.status !== newStatus) {
+      const updates: any = { 
+        status: newStatus,
+        completed_at: newStatus === 'done' ? new Date().toISOString() : null
+      };
+      
+      updateTask(taskId, updates);
+      
+      // Show success notification
+      const statusLabels = {
+        todo: 'To Do',
+        in_progress: 'In Progress',
+        review: 'Review',
+        done: 'Done'
+      };
+      
+      toast.success(`Task moved to ${statusLabels[newStatus as keyof typeof statusLabels]}`);
+    }
+  };
+
+  const handleDragOver = (event: DragOverEvent) => {
+    const { active, over } = event;
+
+    if (!over) {
+      return;
+    }
+
+    const taskId = active.id as string;
+    const newStatus = over.id as string;
+
+    // Validate that the drop target is a valid column
+    const validStatuses = ['todo', 'in_progress', 'review', 'done'];
+    if (!validStatuses.includes(newStatus)) {
+      return;
+    }
+
+    // Only update if the status actually changed
+    const task = tasks.find(t => t.id === taskId);
+    if (task && task.status !== newStatus) {
+      const updates: any = { 
+        status: newStatus,
+        completed_at: newStatus === 'done' ? new Date().toISOString() : null
+      };
+      
+      updateTask(taskId, updates);
+    }
+  };
+
+
+
   const columns = useMemo(() => {
-    if (settings.taskView.groupBy === 'project') {
-      const groups = new Map<string, Task[]>();
-      visibleTasks.forEach((t) => {
-        const key = t.project_id || 'no_project';
-        const arr = groups.get(key) || [];
-        arr.push(t);
-        groups.set(key, arr);
-      });
-      const result = Array.from(groups.entries()).map(([key, groupTasks]) => ({
-        id: key,
-        title: key === 'no_project' ? 'No Project' : projectMap.get(key) || 'Project',
-        color: 'bg-gray-100 dark:bg-gray-800',
-        tasks: groupTasks,
-      }));
-      return result.length ? result : [{ id: 'empty', title: 'No Tasks', color: 'bg-gray-100 dark:bg-gray-800', tasks: [] as Task[] }];
-    }
-    if (settings.taskView.groupBy === 'none') {
-      return [
-        {
-          id: 'all',
-          title: 'All Tasks',
-          color: 'bg-gray-100 dark:bg-gray-800',
-          tasks: visibleTasks,
-        },
-      ];
-    }
-    // Default: group by status
+    // For drag-and-drop functionality, we only support status-based grouping
     return [
       {
         id: 'todo',
@@ -108,7 +177,7 @@ export default function KanbanBoard() {
         tasks: visibleTasks.filter((task) => task.status === 'done'),
       },
     ];
-  }, [visibleTasks, settings.taskView.groupBy, projectMap]);
+  }, [visibleTasks]);
 
   return (
     <div className="space-y-6">
@@ -128,6 +197,8 @@ export default function KanbanBoard() {
           <span>Add Task</span>
         </Button>
       </div>
+
+
 
       {tasks.length === 0 ? (
         // Empty State
@@ -157,56 +228,37 @@ export default function KanbanBoard() {
           </Card>
         </motion.div>
       ) : (
-        // Kanban Board
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 xl:gap-6 pb-4">
-          {columns.map((column, columnIndex) => (
-            <motion.div
-              key={column.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: columnIndex * 0.1 }}
-              className="w-full"
-            >
-              <Card className={`${column.color} border-0`}>
-                <CardHeader className="p-4 md:p-5 pb-3">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-base md:text-lg font-semibold flex items-center space-x-2">
-                      <span>{column.title}</span>
-                      <span className="bg-white/20 dark:bg-black/20 px-2 py-1 rounded-full text-xs">
-                        {column.tasks.length}
-                      </span>
-                    </CardTitle>
-                    <Button variant="ghost" size="icon" className="w-8 h-8">
-                      <MoreHorizontal className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-3 p-4 md:p-5 pt-0 max-h-[70vh] overflow-y-auto scrollbar">
-                  {column.tasks.map((task, taskIndex) => (
-                    <motion.div
-                      key={task.id}
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ duration: 0.3, delay: taskIndex * 0.05 }}
-                    >
-                      <TaskCard task={task} onEdit={(t) => setEditingTask(t)} />
-                    </motion.div>
-                  ))}
+        // Kanban Board with Drag and Drop
+        <DndContext
+          sensors={sensors}
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+          onDragOver={handleDragOver}
+        >
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 xl:gap-6 pb-4">
+            {columns.map((column, columnIndex) => (
+              <DroppableColumn
+                key={column.id}
+                id={column.id}
+                title={column.title}
+                color={column.color}
+                tasks={column.tasks}
+                onEdit={(t) => setEditingTask(t)}
+                onAddTask={() => setIsCreateModalOpen(true)}
+                columnIndex={columnIndex}
+              />
+            ))}
+          </div>
 
-                  {/* Add Task Button */}
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-start text-muted-foreground hover:text-foreground border-2 border-dashed border-muted-foreground/30 hover:border-primary/50"
-                    onClick={() => setIsCreateModalOpen(true)}
-                  >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add a task
-                  </Button>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
-        </div>
+          {/* Drag Overlay */}
+          <DragOverlay>
+            {activeTask ? (
+              <div className="drag-overlay">
+                <TaskCard task={activeTask} />
+              </div>
+            ) : null}
+          </DragOverlay>
+        </DndContext>
       )}
 
       <CreateTaskModal 

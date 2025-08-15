@@ -2,6 +2,19 @@ import express from 'express';
 import pool from '../db.js';
 import jwt from 'jsonwebtoken';
 
+// Analytics tracking function
+async function logTaskEvent(userId, type, properties) {
+  try {
+    await pool.query(
+      `INSERT INTO ai_events (user_id, type, properties) VALUES ($1, $2, $3::jsonb)`,
+      [userId, type, JSON.stringify(properties || {})]
+    );
+  } catch (e) {
+    // Non-fatal: logging should never block core functionality
+    console.warn('task_events log failed:', e?.message || e);
+  }
+}
+
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'dev_secret';
 
@@ -51,15 +64,48 @@ router.post('/', authMiddleware, async (req, res) => {
 router.put('/:id', authMiddleware, async (req, res) => {
   const { id } = req.params;
   const updates = req.body;
-  const fields = Object.keys(updates).map((k, i) => `${k} = $${i + 1}`);
-  const values = Object.values(updates);
-  values.push(id);
-  values.push(req.user.id);
-  const result = await pool.query(
-    `UPDATE tasks SET ${fields.join(', ')}, updated_at = NOW() WHERE id = $${values.length - 1} AND user_id = $${values.length} RETURNING *`,
-    [...values]
-  );
-  res.json(result.rows[0]);
+  
+  try {
+    // Get the current task to compare status changes
+    const currentTask = await pool.query(
+      'SELECT * FROM tasks WHERE id = $1 AND user_id = $2',
+      [id, req.user.id]
+    );
+    
+    if (currentTask.rows.length === 0) {
+      return res.status(404).json({ error: 'Task not found' });
+    }
+    
+    const oldStatus = currentTask.rows[0].status;
+    const newStatus = updates.status;
+    
+    // Update the task
+    const fields = Object.keys(updates).map((k, i) => `${k} = $${i + 1}`);
+    const values = Object.values(updates);
+    values.push(id);
+    values.push(req.user.id);
+    const result = await pool.query(
+      `UPDATE tasks SET ${fields.join(', ')}, updated_at = NOW() WHERE id = $${values.length - 1} AND user_id = $${values.length} RETURNING *`,
+      [...values]
+    );
+    
+    // Track status change analytics
+    if (newStatus && oldStatus !== newStatus) {
+      await logTaskEvent(req.user.id, 'task_status_changed', {
+        task_id: id,
+        old_status: oldStatus,
+        new_status: newStatus,
+        method: 'drag_drop',
+        task_title: currentTask.rows[0].title,
+        completed_at: newStatus === 'done' ? new Date().toISOString() : null
+      });
+    }
+    
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error('Error updating task:', err);
+    res.status(400).json({ error: err.message });
+  }
 });
 
 // Delete task

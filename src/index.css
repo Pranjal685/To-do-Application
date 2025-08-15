@@ -223,3 +223,72 @@ input[name] {
 }
 
 /* Removed global datepicker overrides to avoid layout conflicts; styles are now scoped in the modal */
+
+/* Custom scrollbar styles */
+.scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.3);
+  border-radius: 3px;
+}
+
+.scrollbar::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.5);
+}
+
+/* Drag and drop styles */
+.dragging {
+  cursor: grabbing !important;
+  user-select: none;
+}
+
+.dragging * {
+  pointer-events: none;
+}
+
+.drag-overlay {
+  transform: rotate(5deg);
+  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+}
+
+/* Touch-friendly drag interactions */
+.touch-manipulation {
+  touch-action: manipulation;
+}
+
+/* Column drop zone highlighting */
+.column-drop-zone {
+  transition: all 0.2s ease-in-out;
+}
+
+.column-drop-zone.drag-over {
+  background-color: hsl(var(--primary) / 0.1);
+  border-color: hsl(var(--primary) / 0.5);
+  transform: scale(1.02);
+}
+
+/* Task card drag feedback */
+.task-card-dragging {
+  opacity: 0.5;
+  transform: scale(0.95);
+  transition: all 0.2s ease-in-out;
+}
+
+/* Smooth animations for task movements */
+.task-move-transition {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Responsive drag area */
+@media (max-width: 768px) {
+  .drag-handle {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}

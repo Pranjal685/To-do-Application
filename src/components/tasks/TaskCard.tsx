@@ -98,18 +98,19 @@ export default function TaskCard({ task, onEdit }: TaskCardProps) {
           </div>
         )}
 
-        {/* Status Selector */}
-        <div>
-          <select
-            value={task.status}
-            onChange={(e) => handleStatusChange(e.target.value as Task['status'])}
-            className="text-xs bg-transparent border border-border rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-primary"
-          >
-            <option value="todo">To Do</option>
-            <option value="in_progress">In Progress</option>
-            <option value="review">Review</option>
-            <option value="done">Done</option>
-          </select>
+        {/* Status Display */}
+        <div className="flex items-center space-x-2">
+          <span className="text-xs text-muted-foreground">Status:</span>
+          <span className={`text-xs px-2 py-1 rounded-full ${
+            task.status === 'todo' ? 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300' :
+            task.status === 'in_progress' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' :
+            task.status === 'review' ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300' :
+            'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
+          }`}>
+            {task.status === 'todo' ? 'To Do' :
+             task.status === 'in_progress' ? 'In Progress' :
+             task.status === 'review' ? 'Review' : 'Done'}
+          </span>
         </div>
 
         {/* Footer */}
