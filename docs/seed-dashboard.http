@@ -1,0 +1,108 @@
+### Sign up (run once) or use login below
+POST http://localhost:4000/auth/signup
+Content-Type: application/json
+
+{
+  "email": "qa_dashboard@example.com",
+  "password": "Passw0rd!",
+  "full_name": "QA Dashboard"
+}
+
+### Login
+POST http://localhost:4000/auth/login
+Content-Type: application/json
+
+{
+  "email": "qa_dashboard@example.com",
+  "password": "Passw0rd!"
+}
+
+### Create Project A
+POST http://localhost:4000/projects
+Content-Type: application/json
+
+{
+  "name": "Project A",
+  "description": "QA Project A",
+  "color": "#6b5aed"
+}
+
+### Create Project B
+POST http://localhost:4000/projects
+Content-Type: application/json
+
+{
+  "name": "Project B",
+  "description": "QA Project B",
+  "color": "#10b981"
+}
+
+### Create Tasks (replace PROJECT_ID values accordingly if needed)
+### Note: When using a REST client, add Authorization: Bearer <token> header where required.
+
+POST http://localhost:4000/tasks
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "title": "Urgent due today",
+  "description": "Fix prod bug",
+  "priority": "urgent",
+  "due_date": "{{today_iso}}",
+  "tags": ["prod","bug"],
+  "estimated_duration": 60,
+  "project_id": "{{project_a_id}}"
+}
+
+POST http://localhost:4000/tasks
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "title": "High priority tomorrow",
+  "description": "Prepare deck",
+  "priority": "high",
+  "due_date": "{{tomorrow_iso}}",
+  "tags": ["presentation"],
+  "estimated_duration": 90,
+  "project_id": "{{project_a_id}}"
+}
+
+POST http://localhost:4000/tasks
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "title": "Medium with no due",
+  "description": "Write docs",
+  "priority": "medium",
+  "tags": ["docs","writing","internal","longtag"],
+  "estimated_duration": 45,
+  "project_id": "{{project_b_id}}"
+}
+
+POST http://localhost:4000/tasks
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "title": "Low, yesterday",
+  "description": "Refactor utils",
+  "priority": "low",
+  "due_date": "{{yesterday_iso}}",
+  "tags": [],
+  "estimated_duration": 120,
+  "project_id": "{{project_b_id}}"
+}
+
+### Mark one task as done (use a real task id)
+PUT http://localhost:4000/tasks/{{task_id}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "status": "done",
+  "completed_at": "{{now_iso}}"
+}
+
+
