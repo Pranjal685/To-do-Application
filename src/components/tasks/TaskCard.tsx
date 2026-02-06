@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { MoreHorizontal, Calendar, User, Flag, Clock, Trash2, Edit } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Task } from '@/types';
-import { formatDate, formatDuration, getTaskPriorityColor } from '@/lib/utils';
+import { formatDate, formatDuration, getTaskPriorityColor, cn } from '@/lib/utils';
 import { useTasks } from '@/hooks/useTasks';
 
 interface TaskCardProps {
@@ -27,53 +27,65 @@ export default function TaskCard({ task, onEdit }: TaskCardProps) {
     }
   };
 
+  const priorityColors = {
+    urgent: 'border-l-error-rose bg-error-rose/5',
+    high: 'border-l-champagne-gold bg-champagne-gold/5',
+    medium: 'border-l-warning-amber bg-warning-amber/5',
+    low: 'border-l-success-mint bg-success-mint/5',
+  };
+
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.9 }}
-      className="bg-card border border-border rounded-lg p-4 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer group"
+      initial={{ opacity: 0, scale: 0.95, y: 10 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.95, y: -10 }}
+      whileHover={{ y: -4, scale: 1.01 }}
+      className={cn(
+        'glass-card border-l-4 p-5 md:p-6 cursor-pointer group relative overflow-hidden transition-all duration-300',
+        priorityColors[task.priority]
+      )}
     >
-      <div className="space-y-3">
+      <div className="space-y-4">
         {/* Priority and Actions */}
         <div className="flex items-center justify-between">
           <div
-            className={`w-3 h-3 rounded-full ${
-              task.priority === 'urgent' ? 'bg-red-500' :
-              task.priority === 'high' ? 'bg-orange-500' :
-              task.priority === 'medium' ? 'bg-yellow-500' : 'bg-green-500'
-            }`}
+            className={cn(
+              'w-3 h-3 rounded-full',
+              task.priority === 'urgent' ? 'bg-error-rose' :
+              task.priority === 'high' ? 'bg-champagne-gold' :
+              task.priority === 'medium' ? 'bg-warning-amber' : 'bg-success-mint'
+            )}
             title={`${task.priority} priority`}
           />
-          <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-all duration-300">
             {onEdit && (
               <Button
                 variant="ghost"
                 size="icon"
-                className="w-6 h-6"
+                className="w-8 h-8 rounded-lg hover:bg-champagne-gold/20 hover:text-champagne-gold"
                 onClick={() => onEdit(task)}
               >
-                <Edit className="w-3 h-3" />
+                <Edit className="w-4 h-4" />
               </Button>
             )}
             <Button
               variant="ghost"
               size="icon"
-              className="w-6 h-6 text-red-500 hover:text-red-700"
+              className="w-8 h-8 rounded-lg hover:bg-error-rose/20 hover:text-error-rose"
               onClick={handleDelete}
             >
-              <Trash2 className="w-3 h-3" />
+              <Trash2 className="w-4 h-4" />
             </Button>
           </div>
         </div>
 
         {/* Task Title and Description */}
-        <div>
-          <h3 className="font-semibold text-foreground text-sm mb-1 line-clamp-2">
+        <div className="space-y-2">
+          <h3 className="font-bold text-foreground text-base md:text-lg leading-tight line-clamp-2 group-hover:text-champagne-gold transition-colors">
             {task.title}
           </h3>
           {task.description && (
-            <p className="text-xs text-muted-foreground line-clamp-2">
+            <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
               {task.description}
             </p>
           )}
@@ -81,17 +93,17 @@ export default function TaskCard({ task, onEdit }: TaskCardProps) {
 
         {/* Tags */}
         {task.tags.length > 0 && (
-          <div className="flex flex-wrap gap-1">
+          <div className="flex flex-wrap gap-2">
             {task.tags.slice(0, 3).map((tag) => (
               <span
                 key={tag}
-                className="px-2 py-1 bg-primary/10 text-primary text-xs rounded-full"
+                className="px-3 py-1 bg-champagne-gold/20 text-champagne-gold text-xs rounded-full font-semibold border border-champagne-gold/30"
               >
                 {tag}
               </span>
             ))}
             {task.tags.length > 3 && (
-              <span className="px-2 py-1 bg-muted text-muted-foreground text-xs rounded-full">
+              <span className="px-3 py-1 bg-muted/50 text-muted-foreground text-xs rounded-full border border-border">
                 +{task.tags.length - 3}
               </span>
             )}
@@ -100,13 +112,14 @@ export default function TaskCard({ task, onEdit }: TaskCardProps) {
 
         {/* Status Display */}
         <div className="flex items-center space-x-2">
-          <span className="text-xs text-muted-foreground">Status:</span>
-          <span className={`text-xs px-2 py-1 rounded-full ${
-            task.status === 'todo' ? 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300' :
-            task.status === 'in_progress' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' :
-            task.status === 'review' ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300' :
-            'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
-          }`}>
+          <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Status:</span>
+          <span className={cn(
+            'text-xs px-3 py-1 rounded-full font-semibold',
+            task.status === 'todo' ? 'bg-muted/50 text-muted-foreground border border-border' :
+            task.status === 'in_progress' ? 'bg-champagne-gold/10 text-champagne-gold border border-champagne-gold/20' :
+            task.status === 'review' ? 'bg-warning-amber/10 text-warning-amber border border-warning-amber/20' :
+            'bg-success-mint/10 text-success-mint border border-success-mint/20'
+          )}>
             {task.status === 'todo' ? 'To Do' :
              task.status === 'in_progress' ? 'In Progress' :
              task.status === 'review' ? 'Review' : 'Done'}

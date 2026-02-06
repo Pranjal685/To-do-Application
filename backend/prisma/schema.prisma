@@ -1,0 +1,171 @@
+// Prisma Schema for AI Todo Application
+// This schema matches the existing PostgreSQL database structure
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Profile {
+  id          Int       @id @default(autoincrement())
+  email       String    @unique
+  fullName    String?   @map("full_name")
+  password    String
+  preferences Json      @default("{}")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  projects    Project[]
+  tasks       Task[]
+  aiEvents    AiEvent[]
+  aiToolCalls AiToolCall[]
+
+  @@map("profiles")
+}
+
+model Project {
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String?
+  color       String    @default("#3B82F6")
+  userId      Int      @map("user_id")
+  progress    Int      @default(0)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  user        Profile   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tasks       Task[]
+
+  @@index([userId])
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([progress])
+  @@map("projects")
+}
+
+model Task {
+  id                Int       @id @default(autoincrement())
+  title             String
+  description       String?
+  status            TaskStatus @default(todo)
+  priority          Priority  @default(medium)
+  userId            Int       @map("user_id")
+  projectId         Int?      @map("project_id")
+  dueDate           DateTime? @map("due_date") @db.Timestamptz
+  completedAt       DateTime? @map("completed_at") @db.Timestamptz
+  estimatedDuration Int?      @map("estimated_duration")
+  actualDuration    Int?       @map("actual_duration")
+  tags              String[]  @default([])
+  createdAt         DateTime   @default(now()) @map("created_at")
+  updatedAt         DateTime   @updatedAt @map("updated_at")
+
+  // Relations
+  user              Profile    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project           Project?   @relation(fields: [projectId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([status])
+  @@index([projectId])
+  @@index([userId, status])
+  @@index([userId, dueDate])
+  @@index([userId, priority])
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([userId, projectId, status])
+  @@index([completedAt])
+  @@index([estimatedDuration])
+  @@index([actualDuration])
+  @@map("tasks")
+}
+
+enum TaskStatus {
+  todo
+  in_progress
+  review
+  done
+
+  @@map("task_status")
+}
+
+enum Priority {
+  low
+  medium
+  high
+  urgent
+
+  @@map("priority")
+}
+
+model AiEvent {
+  id         Int       @id @default(autoincrement())
+  userId     Int       @map("user_id")
+  chatId     Int?      @map("chat_id")
+  type       String
+  properties Json      @default("{}")
+  createdAt  DateTime  @default(now()) @map("created_at")
+
+  // Relations
+  user       Profile   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([type, createdAt(sort: Desc)])
+  @@index([chatId])
+  @@index([userId, type, createdAt(sort: Desc)])
+  @@map("ai_events")
+}
+
+model AiToolCall {
+  id         Int            @id @default(autoincrement())
+  userId     Int            @map("user_id")
+  chatId     Int?           @map("chat_id")
+  toolName   String         @map("tool_name")
+  args       Json           @default("{}")
+  status     ToolCallStatus
+  latencyMs  Int?           @map("latency_ms")
+  errorCode  String?        @map("error_code")
+  createdAt  DateTime       @default(now()) @map("created_at")
+
+  // Relations
+  user       Profile        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([chatId])
+  @@index([userId, status, createdAt(sort: Desc)])
+  @@index([toolName])
+  @@index([latencyMs])
+  @@map("ai_tool_calls")
+}
+
+enum ToolCallStatus {
+  success
+  error
+
+  @@map("tool_call_status")
+}
+
+model AiUsageDaily {
+  date              DateTime @db.Date
+  model             String
+  users             Int      @default(0)
+  sessions          Int      @default(0)
+  messages          Int      @default(0)
+  suggestions       Int      @default(0)
+  accepted          Int      @default(0)
+  toolCalls         Int      @default(0) @map("tool_calls")
+  toolSuccessRate   Decimal? @map("tool_success_rate") @db.Decimal
+  p50LatencyMs      Int?     @map("p50_latency_ms")
+  p95LatencyMs      Int?     @map("p95_latency_ms")
+  inputTokens        BigInt   @default(0) @map("input_tokens")
+  outputTokens       BigInt   @default(0) @map("output_tokens")
+  costUsd            Decimal  @default(0) @map("cost_usd") @db.Decimal
+
+  @@id([date, model])
+  @@index([date(sort: Desc), model])
+  @@index([costUsd(sort: Desc)])
+  @@map("ai_usage_daily")
+}
+

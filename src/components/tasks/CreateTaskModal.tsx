@@ -112,31 +112,41 @@ export default function CreateTaskModal({ isOpen, onClose, defaultDueDate }: Cre
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            className="absolute inset-0 backdrop-blur-md"
+            style={{
+              backgroundColor: 'rgba(14, 15, 16, 0.8)',
+            }}
             onClick={onClose}
           />
           <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="relative bg-card border border-border rounded-lg shadow-xl w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto"
+            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+            className="relative glass-card w-full max-w-2xl mx-4 max-h-[90vh] overflow-hidden shadow-premium border-champagne-gold/20"
+            onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between p-6 border-b border-border">
-              <h2 className="text-xl font-semibold text-foreground">Create New Task</h2>
-              <Button variant="ghost" size="icon" onClick={onClose}>
-                <X className="w-4 h-4" />
+            <div className="flex items-center justify-between p-6 border-b border-white/10 bg-gradient-to-r from-champagne-gold/10 to-crystal-teal/10">
+              <h2 className="text-2xl font-bold gradient-text-gold">Create New Task</h2>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={onClose}
+                className="w-10 h-10 rounded-xl hover:bg-error-rose/10 hover:text-error-rose"
+              >
+                <X className="w-5 h-5" />
               </Button>
             </div>
 
-            <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-4 relative">
+            <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-5 relative overflow-y-auto max-h-[calc(90vh-80px)] scrollbar-thin">
               <div>
-                <label htmlFor="title" className="block text-sm font-medium text-foreground mb-2">
-                  Task Title *
+                <label htmlFor="title" className="block text-sm font-semibold text-foreground mb-2.5">
+                  Task Title <span className="text-error-rose">*</span>
                 </label>
                 <Controller
                   name="title"
@@ -146,9 +156,10 @@ export default function CreateTaskModal({ isOpen, onClose, defaultDueDate }: Cre
                     <Input
                       id="title"
                       {...field}
+                      variant="glass"
                       placeholder="Enter task title..."
                       autoComplete="off"
-                      className={errors.title ? 'border-red-500' : ''}
+                      className={errors.title ? 'border-error-rose ring-error-rose' : ''}
                     />
                   )}
                 />
@@ -166,7 +177,7 @@ export default function CreateTaskModal({ isOpen, onClose, defaultDueDate }: Cre
                   {...register('description')}
                   placeholder="Enter task description..."
                   rows={3}
-                  className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
+                  className="flex w-full rounded-xl border-2 border-border/50 bg-background/50 backdrop-blur-sm px-4 py-3 text-sm ring-offset-background placeholder:text-muted-foreground/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-champagne-gold focus-visible:border-champagne-gold focus-visible:ring-offset-2 transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-50 resize-none hover:border-champagne-gold/50"
                 />
               </div>
 
@@ -322,11 +333,11 @@ export default function CreateTaskModal({ isOpen, onClose, defaultDueDate }: Cre
                 </div>
               </div>
 
-              <div className="flex justify-end space-x-3 pt-4">
+              <div className="flex justify-end space-x-3 pt-6 border-t border-white/10">
                 <Button type="button" variant="outline" onClick={onClose}>
                   Cancel
                 </Button>
-                <Button type="submit" disabled={isCreating}>
+                <Button type="submit" variant="premium" disabled={isCreating}>
                   {isCreating ? 'Creating...' : 'Create Task'}
                 </Button>
               </div>

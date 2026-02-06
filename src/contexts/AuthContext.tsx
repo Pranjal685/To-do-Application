@@ -1,5 +1,12 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User as AppUser } from '@/types';
+import {
+  getToken,
+  setToken,
+  getUser,
+  setUser as storeUser,
+  clearAuthData,
+} from '@/lib/authStorage';
 
 interface AuthContextType {
   user: AppUser | null;
@@ -9,7 +16,7 @@ interface AuthContextType {
   signUp: (email: string, password: string, fullName?: string) => Promise<void>;
   signOut: () => void;
   updateProfile: (updates: Partial<AppUser>) => Promise<void>;
-  setDevAdmin: () => void; // Expose for dev bypass
+  setDevAdmin: () => void; // Development-only bypass
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -30,16 +37,16 @@ const API_URL = 'http://localhost:4000';
 
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<AppUser | null>(null);
-  const [token, setToken] = useState<string | null>(null);
+  const [token, setTokenState] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Try to load token and user from localStorage
-    const storedToken = localStorage.getItem('token');
-    const storedUser = localStorage.getItem('user');
+    // Load auth data from storage on mount
+    const storedToken = getToken();
+    const storedUser = getUser();
     if (storedToken && storedUser) {
-      setToken(storedToken);
-      setUser(JSON.parse(storedUser));
+      setTokenState(storedToken);
+      setUser(storedUser);
     }
     setLoading(false);
   }, []);
@@ -52,12 +59,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
-      if (!res.ok) throw new Error('Invalid credentials');
-      const { user, token } = await res.json();
-      setUser(user);
-      setToken(token);
-      localStorage.setItem('user', JSON.stringify(user));
-      localStorage.setItem('token', token);
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || 'Invalid email or password');
+      }
+
+      const { user: userData, token: authToken } = await res.json();
+      setUser(userData);
+      setTokenState(authToken);
+      storeUser(userData);
+      setToken(authToken);
     } finally {
       setLoading(false);
     }
@@ -71,12 +83,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password, full_name: fullName }),
       });
-      if (!res.ok) throw new Error('Signup failed');
-      const { user, token } = await res.json();
-      setUser(user);
-      setToken(token);
-      localStorage.setItem('user', JSON.stringify(user));
-      localStorage.setItem('token', token);
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || 'Signup failed. Please try again.');
+      }
+
+      const { user: userData, token: authToken } = await res.json();
+      setUser(userData);
+      setTokenState(authToken);
+      storeUser(userData);
+      setToken(authToken);
     } finally {
       setLoading(false);
     }
@@ -84,9 +101,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const signOut = () => {
     setUser(null);
-    setToken(null);
-    localStorage.removeItem('user');
-    localStorage.removeItem('token');
+    setTokenState(null);
+    clearAuthData();
   };
 
   const updateProfile = async (updates: Partial<AppUser>) => {
@@ -102,17 +118,27 @@ export function AuthProvider({ children }: AuthProviderProps) {
     if (!res.ok) throw new Error('Failed to update profile');
     const updatedUser = await res.json();
     setUser(updatedUser);
-    localStorage.setItem('user', JSON.stringify(updatedUser));
+    storeUser(updatedUser);
   };
 
+  /**
+   * Development-only bypass for testing
+   * This function is only available in development builds
+   */
   const setDevAdmin = () => {
-    const adminUser = {
+    // Guard: Only allow in development environment
+    if (!import.meta.env.DEV) {
+      console.warn('Dev admin access is not available in production');
+      return;
+    }
+
+    const adminUser: AppUser = {
       id: '1',
       email: 'admin@example.com',
       full_name: 'Admin User',
       avatar_url: '',
       preferences: {
-        theme: 'system' as 'system',
+        theme: 'system' as const,
         timezone: 'UTC',
         work_hours: { start: '09:00', end: '17:00' },
         notifications: { email: true, push: true, reminders: true },
@@ -122,9 +148,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
       updated_at: new Date().toISOString(),
     };
     setUser(adminUser);
+    setTokenState('dev');
+    storeUser(adminUser);
     setToken('dev');
-    localStorage.setItem('user', JSON.stringify(adminUser));
-    localStorage.setItem('token', 'dev');
   };
 
   const value = {
@@ -135,7 +161,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     signUp,
     signOut,
     updateProfile,
-    setDevAdmin, // Expose for dev bypass
+    setDevAdmin,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

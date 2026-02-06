@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import pool from './db.js';
+import { pool } from './db.js';
 import runMigrations from './migrate.js';
 import authRouter from './routes/auth.js';
 import tasksRouter from './routes/tasks.js';

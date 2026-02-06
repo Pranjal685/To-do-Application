@@ -138,30 +138,30 @@ export function isValidEmail(email: string) {
 export function getTaskPriorityColor(priority: string) {
   switch (priority) {
     case 'urgent':
-      return 'text-red-600 bg-red-50 border-red-200';
+      return 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-900';
     case 'high':
-      return 'text-orange-600 bg-orange-50 border-orange-200';
+      return 'text-primary bg-primary/10 border-primary/20';
     case 'medium':
-      return 'text-yellow-600 bg-yellow-50 border-yellow-200';
+      return 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-900';
     case 'low':
-      return 'text-green-600 bg-green-50 border-green-200';
+      return 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-900';
     default:
-      return 'text-gray-600 bg-gray-50 border-gray-200';
+      return 'text-muted-foreground bg-muted border-border';
   }
 }
 
 export function getTaskStatusColor(status: string) {
   switch (status) {
     case 'todo':
-      return 'text-gray-600 bg-gray-50 border-gray-200';
+      return 'text-muted-foreground bg-muted border-border';
     case 'in_progress':
-      return 'text-blue-600 bg-blue-50 border-blue-200';
+      return 'text-primary bg-primary/10 border-primary/20';
     case 'review':
-      return 'text-purple-600 bg-purple-50 border-purple-200';
+      return 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-900';
     case 'done':
-      return 'text-green-600 bg-green-50 border-green-200';
+      return 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-900';
     default:
-      return 'text-gray-600 bg-gray-50 border-gray-200';
+      return 'text-muted-foreground bg-muted border-border';
   }
 }
 

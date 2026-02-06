@@ -37,7 +37,7 @@ function App() {
         <SettingsProvider>
         <AuthProvider>
           <Router>
-            <div className="min-h-screen bg-background text-foreground">
+            <div className="min-h-screen" style={{ backgroundColor: 'hsl(var(--background))', color: 'hsl(var(--foreground))' }}>
               <Routes>
                 <Route path="/login" element={<Login />} />
                 <Route

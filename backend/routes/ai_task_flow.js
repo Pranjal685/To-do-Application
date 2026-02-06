@@ -10,8 +10,16 @@ const JWT_SECRET = process.env.JWT_SECRET || 'dev_secret';
 function auth(req, res, next) {
   const authHeader = req.headers.authorization;
   if (!authHeader) return res.status(401).json({ error: 'No token' });
+  const token = authHeader.split(' ')[1];
+  
+  // Dev bypass: accept 'dev' token for development
+  if (token === 'dev') {
+    req.user = { id: 1, email: 'admin@example.com' };
+    return next();
+  }
+  
   try {
-    req.user = jwt.verify(authHeader.split(' ')[1], JWT_SECRET);
+    req.user = jwt.verify(token, JWT_SECRET);
     next();
   } catch {
     res.status(401).json({ error: 'Invalid token' });

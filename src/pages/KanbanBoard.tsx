@@ -155,25 +155,25 @@ export default function KanbanBoard() {
       {
         id: 'todo',
         title: 'To Do',
-        color: 'bg-gray-100 dark:bg-gray-800',
+        color: 'bg-muted/50 dark:bg-muted/30',
         tasks: visibleTasks.filter((task) => task.status === 'todo'),
       },
       {
         id: 'in_progress',
         title: 'In Progress',
-        color: 'bg-blue-100 dark:bg-blue-900/30',
+        color: 'bg-primary/10 dark:bg-primary/20',
         tasks: visibleTasks.filter((task) => task.status === 'in_progress'),
       },
       {
         id: 'review',
         title: 'Review',
-        color: 'bg-yellow-100 dark:bg-yellow-900/30',
+        color: 'bg-amber-50 dark:bg-amber-950/30',
         tasks: visibleTasks.filter((task) => task.status === 'review'),
       },
       {
         id: 'done',
         title: 'Done',
-        color: 'bg-green-100 dark:bg-green-900/30',
+        color: 'bg-emerald-50 dark:bg-emerald-950/30',
         tasks: visibleTasks.filter((task) => task.status === 'done'),
       },
     ];
