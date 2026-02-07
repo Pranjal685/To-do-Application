@@ -9,7 +9,7 @@ interface LayoutProps {
 
 export default function Layout({ children }: LayoutProps) {
   return (
-    <div 
+    <div
       className="min-h-screen transition-colors duration-300"
       style={{
         backgroundColor: 'hsl(var(--background))',

@@ -35,41 +35,41 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <SettingsProvider>
-        <AuthProvider>
-          <Router>
-            <div className="min-h-screen" style={{ backgroundColor: 'hsl(var(--background))', color: 'hsl(var(--foreground))' }}>
-              <Routes>
-                <Route path="/login" element={<Login />} />
-                <Route
-                  path="/*"
-                  element={
-                    <ProtectedRoute>
-                      <Layout>
-                        <Routes>
-                          <Route path="/" element={<Dashboard />} />
-                          <Route path="/kanban" element={<KanbanBoard />} />
-                          <Route path="/calendar" element={<Calendar />} />
-                          <Route path="/analytics" element={<AnalyticsWindow />} />
-                          <Route path="/chat" element={<AssistantPage />} />
-                          <Route path="/projects" element={<Projects />} />
-                          <Route path="/pomodoro" element={<PomodoroPage />} />
-                          <Route path="/settings" element={<Settings />} />
-                        </Routes>
-                      </Layout>
-                    </ProtectedRoute>
-                  }
+          <AuthProvider>
+            <Router>
+              <div className="min-h-screen" style={{ backgroundColor: 'hsl(var(--background))', color: 'hsl(var(--foreground))' }}>
+                <Routes>
+                  <Route path="/login" element={<Login />} />
+                  <Route
+                    path="/*"
+                    element={
+                      <ProtectedRoute>
+                        <Layout>
+                          <Routes>
+                            <Route path="/" element={<Dashboard />} />
+                            <Route path="/kanban" element={<KanbanBoard />} />
+                            <Route path="/calendar" element={<Calendar />} />
+                            <Route path="/analytics" element={<AnalyticsWindow />} />
+                            <Route path="/chat" element={<AssistantPage />} />
+                            <Route path="/projects" element={<Projects />} />
+                            <Route path="/pomodoro" element={<PomodoroPage />} />
+                            <Route path="/settings" element={<Settings />} />
+                          </Routes>
+                        </Layout>
+                      </ProtectedRoute>
+                    }
+                  />
+                </Routes>
+                <Toaster
+                  position="top-right"
+                  toastOptions={{
+                    duration: 4000,
+                    className: 'bg-card text-card-foreground border border-border',
+                  }}
                 />
-              </Routes>
-              <Toaster
-                position="top-right"
-                toastOptions={{
-                  duration: 4000,
-                  className: 'bg-card text-card-foreground border border-border',
-                }}
-              />
-            </div>
-          </Router>
-        </AuthProvider>
+              </div>
+            </Router>
+          </AuthProvider>
         </SettingsProvider>
       </ThemeProvider>
     </QueryClientProvider>

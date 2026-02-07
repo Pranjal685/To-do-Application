@@ -4,49 +4,61 @@
 
 @layer base {
   :root {
-    /* Professional Light Theme - Clean, calm, focused */
+    /* Professional Light Theme - Notion/Linear style */
+    /* Surface hierarchy: Background (gray) < Cards (near-white) */
     /* HSL format: hue saturation% lightness% */
-    --background: 40 33% 98%;
-    /* Stone-50 #FAFAF9 */
-    --foreground: 0 0% 11%;
-    /* Near black #1C1C1C */
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 11%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 11%;
-    --primary: 239 84% 67%;
-    /* Muted Indigo #6366F1 */
-    --primary-foreground: 0 0% 100%;
-    --secondary: 220 9% 46%;
-    /* Neutral-500 #6B7280 */
-    --secondary-foreground: 0 0% 100%;
-    --muted: 240 5% 96%;
-    /* Zinc-100 */
-    --muted-foreground: 240 4% 46%;
-    /* Zinc-500 */
-    --accent: 239 84% 67%;
-    /* Same as primary for consistency */
-    --accent-foreground: 0 0% 100%;
-    --destructive: 0 84% 60%;
-    /* Red-500 - muted red */
-    --destructive-foreground: 0 0% 100%;
-    --border: 240 6% 90%;
-    /* Zinc-200 */
-    --input: 240 5% 96%;
-    --ring: 239 84% 67%;
-    /* Muted Indigo */
-    --radius: 0.625rem;
-    /* Slightly smaller, more professional */
 
-    /* Status Colors - Muted, not flashy */
-    --success: 142 71% 45%;
-    /* Green-500 */
+    /* App Background - Light paper gray, noticeably not white */
+    --background: 220 12% 91%;
+    /* #E3E5EB - visible gray, clearly not white */
+    --foreground: 220 13% 18%;
+    /* Charcoal #2D3142 - strong, readable */
+
+    /* Cards - Near-white, LIGHTER than background */
+    --card: 0 0% 100%;
+    /* Pure white #FFFFFF for cards */
+    --card-foreground: 220 13% 18%;
+
+    /* Popovers - same as cards */
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 13% 18%;
+
+    /* Primary - Desaturated Slate Blue (only for CTA, focus, active nav) */
+    --primary: 215 25% 45%;
+    /* Steel blue #5B7185 */
+    --primary-foreground: 0 0% 100%;
+
+    /* Secondary - Neutral gray */
+    --secondary: 220 9% 46%;
+    --secondary-foreground: 0 0% 100%;
+
+    /* Muted - slightly darker than cards for subtle differentiation */
+    --muted: 220 14% 96%;
+    /* Very light gray #F4F5F7 */
+    --muted-foreground: 220 9% 46%;
+
+    /* Accent - Same as primary */
+    --accent: 215 25% 45%;
+    --accent-foreground: 0 0% 100%;
+
+    /* Destructive */
+    --destructive: 0 65% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Borders - subtle but visible */
+    --border: 220 13% 87%;
+    /* #D9DCE1 */
+    --input: 0 0% 100%;
+    /* White input backgrounds */
+    --ring: 215 25% 45%;
+    --radius: 0.5rem;
+
+    /* Status Colors */
+    --success: 160 60% 38%;
     --success-foreground: 0 0% 100%;
-    --warning: 38 92% 50%;
-    /* Amber-500 */
-    --warning-foreground: 0 0% 11%;
-    --info: 217 91% 60%;
-    /* Blue-500 */
+    --warning: 38 80% 48%;
+    --warning-foreground: 220 13% 18%;
+    --info: 210 50% 50%;
     --info-foreground: 0 0% 100%;
   }
 
@@ -111,6 +123,166 @@
     border: 1px solid rgba(255, 255, 255, 0.06) !important;
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4) !important;
   }
+
+  /* ================================ */
+  /* Light Mode Animation Utilities   */
+  /* Subtle, calm, utilitarian        */
+  /* ================================ */
+
+  /* Light mode hover elevation - subtle lift effect */
+  :root .hover-lift {
+    transition: transform 180ms ease-out, box-shadow 180ms ease-out;
+  }
+
+  :root .hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+
+  /* Light mode card hover - subtle border + shadow */
+  :root .card-hover {
+    transition: border-color 180ms ease-out, box-shadow 180ms ease-out;
+  }
+
+  :root .card-hover:hover {
+    border-color: hsl(var(--border));
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  }
+
+  /* Light mode button hover - subtle scale + opacity */
+  :root .btn-hover-light {
+    transition: transform 150ms ease-out, opacity 150ms ease-out, box-shadow 150ms ease-out;
+  }
+
+  :root .btn-hover-light:hover {
+    transform: scale(1.01);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  :root .btn-hover-light:active {
+    transform: scale(0.99);
+  }
+
+  /* Light mode focus ring enhancement */
+  :root .focus-enhanced:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px hsl(var(--background)), 0 0 0 4px hsl(var(--primary) / 0.4);
+    transition: box-shadow 150ms ease-out;
+  }
+
+  /* Light mode input focus - subtle border transition */
+  :root input:focus,
+  :root textarea:focus,
+  :root select:focus {
+    transition: border-color 180ms ease-out, box-shadow 180ms ease-out;
+    border-color: hsl(var(--primary) / 0.6);
+    box-shadow: 0 0 0 3px hsl(var(--primary) / 0.1);
+  }
+
+  /* Light mode interactive card */
+  :root .interactive-card {
+    transition: transform 200ms ease-out, box-shadow 200ms ease-out, border-color 200ms ease-out;
+  }
+
+  :root .interactive-card:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    border-color: hsl(var(--border));
+  }
+
+  :root .interactive-card:focus-within {
+    box-shadow: 0 0 0 2px hsl(var(--primary) / 0.2);
+  }
+
+  /* ================================ */
+  /* Light Mode Text Hover Animations */
+  /* Subtle, professional, utility-driven */
+  /* ================================ */
+
+  /* Text link hover - color shift + slight translate */
+  :root .text-hover {
+    transition: color 180ms ease-out, transform 180ms ease-out;
+    display: inline-block;
+  }
+
+  :root .text-hover:hover {
+    color: hsl(var(--primary));
+    transform: translateX(2px);
+  }
+
+  /* Subtext hover - opacity increase */
+  :root .subtext-hover {
+    transition: color 200ms ease-out, opacity 200ms ease-out;
+    opacity: 0.7;
+  }
+
+  :root .subtext-hover:hover {
+    color: hsl(var(--foreground));
+    opacity: 1;
+  }
+
+  /* Feature item hover - icon + text group */
+  :root .feature-hover {
+    transition: background-color 200ms ease-out, transform 180ms ease-out, box-shadow 200ms ease-out;
+  }
+
+  :root .feature-hover:hover {
+    background-color: hsl(var(--muted) / 0.5);
+    transform: translateX(4px);
+    box-shadow: -2px 0 0 0 hsl(var(--primary));
+  }
+
+  /* Nav item hover - background + subtle lift */
+  :root .nav-hover {
+    transition: background-color 180ms ease-out, color 180ms ease-out, transform 150ms ease-out;
+  }
+
+  :root .nav-hover:hover {
+    background-color: hsl(var(--muted));
+    color: hsl(var(--foreground));
+    transform: translateY(-1px);
+  }
+
+  /* Label hover - subtle color darken */
+  :root .label-hover {
+    transition: color 150ms ease-out;
+  }
+
+  :root .label-hover:hover {
+    color: hsl(var(--foreground));
+  }
+
+  /* Icon hover - scale + color */
+  :root .icon-hover {
+    transition: transform 180ms ease-out, color 180ms ease-out;
+  }
+
+  :root .icon-hover:hover {
+    transform: scale(1.1);
+    color: hsl(var(--primary));
+  }
+
+  /* List item hover - left accent border */
+  :root .list-item-hover {
+    transition: padding-left 180ms ease-out, border-color 180ms ease-out, background-color 180ms ease-out;
+    border-left: 2px solid transparent;
+  }
+
+  :root .list-item-hover:hover {
+    padding-left: 8px;
+    border-left-color: hsl(var(--primary));
+    background-color: hsl(var(--muted) / 0.3);
+  }
+
+  /* Description text hover - opacity + subtle underline */
+  :root .description-hover {
+    transition: opacity 200ms ease-out;
+    opacity: 0.8;
+  }
+
+  :root .description-hover:hover {
+    opacity: 1;
+  }
 }
 
 @layer base {
@@ -123,15 +295,90 @@
     font-feature-settings: "rlig" 1, "calt" 1;
     background-color: hsl(var(--background)) !important;
     color: hsl(var(--foreground)) !important;
+    /* Base font sizing - comfortable for reading */
+    font-size: 1rem;
+    line-height: 1.6;
   }
 
   html {
     background-color: hsl(var(--background)) !important;
+    /* Responsive base: 16px minimum, scales up on larger screens */
+    font-size: clamp(16px, 1vw + 14px, 18px);
   }
 
   #root {
     background-color: hsl(var(--background)) !important;
     min-height: 100vh;
+  }
+
+  /* Light mode typography - improved readability */
+  :root {
+    /* Typography scale for light mode */
+    --text-xs: 0.8125rem;
+    /* 13px at 16px base */
+    --text-sm: 0.9375rem;
+    /* 15px - comfortable small text */
+    --text-base: 1rem;
+    /* 16px base */
+    --text-lg: 1.125rem;
+    /* 18px */
+    --text-xl: 1.25rem;
+    /* 20px */
+    --text-2xl: 1.5rem;
+    /* 24px */
+    --text-3xl: 1.875rem;
+    /* 30px */
+
+    /* Line heights for readability */
+    --leading-tight: 1.25;
+    --leading-normal: 1.6;
+    --leading-relaxed: 1.75;
+  }
+
+  /* Ensure labels and inputs are readable */
+  label {
+    font-size: var(--text-sm);
+    line-height: var(--leading-normal);
+  }
+
+  input,
+  textarea,
+  select {
+    font-size: var(--text-base);
+    line-height: var(--leading-normal);
+  }
+
+  /* Button text - confident and readable */
+  button {
+    font-size: var(--text-base);
+    line-height: var(--leading-tight);
+  }
+
+  /* Headings - clear hierarchy */
+  h1 {
+    font-size: var(--text-3xl);
+    line-height: var(--leading-tight);
+  }
+
+  h2 {
+    font-size: var(--text-2xl);
+    line-height: var(--leading-tight);
+  }
+
+  h3 {
+    font-size: var(--text-xl);
+    line-height: var(--leading-tight);
+  }
+
+  h4 {
+    font-size: var(--text-lg);
+    line-height: var(--leading-tight);
+  }
+
+  /* Paragraphs - comfortable reading */
+  p {
+    font-size: var(--text-base);
+    line-height: var(--leading-relaxed);
   }
 
   /* Premium Color Utilities - Explicit classes to ensure they work */

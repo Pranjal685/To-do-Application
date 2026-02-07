@@ -2,15 +2,17 @@ import React, { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
-import { Brain, CheckCircle, Zap } from 'lucide-react';
-import { validateLoginForm, validateSignupForm, validatePassword } from '@/lib/validation';
+import { Brain, CheckCircle, Zap, Sun, Moon } from 'lucide-react';
+import { validateLoginForm, validateSignupForm } from '@/lib/validation';
 import toast from 'react-hot-toast';
 
 export default function Login() {
   const { user, signIn, signUp, setDevAdmin } = useAuth();
+  const { actualTheme, setTheme } = useTheme();
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<{ password?: string }>({});
@@ -28,24 +30,18 @@ export default function Login() {
     e.preventDefault();
     setFieldErrors({});
 
-    // Validate form
+    // Validate form (includes password validation for signup)
     const validation = isLogin
       ? validateLoginForm({ email: formData.email, password: formData.password })
       : validateSignupForm({ email: formData.email, password: formData.password, fullName: formData.fullName });
 
     if (!validation.valid) {
+      // Show field-specific error for password
+      if (validation.error?.toLowerCase().includes('password')) {
+        setFieldErrors({ password: validation.error });
+      }
       toast.error(validation.error || 'Please check your input');
       return;
-    }
-
-    // Show password hint for signup
-    if (!isLogin) {
-      const pwdCheck = validatePassword(formData.password);
-      if (!pwdCheck.valid) {
-        setFieldErrors({ password: pwdCheck.error });
-        toast.error(pwdCheck.error || 'Invalid password');
-        return;
-      }
     }
 
     setLoading(true);
@@ -90,11 +86,24 @@ export default function Login() {
 
   return (
     <div
-      className="h-screen overflow-hidden transition-colors duration-300"
+      className="h-screen overflow-hidden transition-colors duration-300 relative"
       style={{
-        backgroundColor: 'var(--background)',
+        backgroundColor: 'hsl(var(--background))',
       }}
     >
+      {/* Theme Toggle - Debug Tool */}
+      <button
+        onClick={() => setTheme(actualTheme === 'dark' ? 'light' : 'dark')}
+        className="absolute top-4 right-4 p-2 rounded-lg border border-border hover:bg-muted transition-colors duration-200 hover-lift"
+        aria-label="Toggle theme"
+        title={`Switch to ${actualTheme === 'dark' ? 'light' : 'dark'} mode`}
+      >
+        {actualTheme === 'dark' ? (
+          <Sun className="w-5 h-5 text-foreground" />
+        ) : (
+          <Moon className="w-5 h-5 text-foreground" />
+        )}
+      </button>
       <div className="container mx-auto px-4 py-6 lg:py-8 h-full flex items-center">
         <div className="grid lg:grid-cols-2 gap-6 lg:gap-12 items-center w-full">
           {/* Left side - Branding and Features */}
@@ -135,17 +144,17 @@ export default function Login() {
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.4, delay: 0.3 + index * 0.1 }}
-                  className="glass-card p-3 border border-white/10"
+                  className="glass-card p-3 border border-white/10 feature-hover cursor-pointer rounded-lg"
                 >
                   <div className="flex items-center space-x-3">
                     <div className="w-10 h-10 bg-muted rounded-lg flex items-center justify-center flex-shrink-0 border border-border">
-                      <feature.icon className="w-5 h-5 text-muted-foreground" />
+                      <feature.icon className="w-5 h-5 text-muted-foreground icon-hover" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-medium text-foreground text-sm">
+                      <h3 className="font-medium text-foreground text-sm text-hover">
                         {feature.title}
                       </h3>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-xs text-muted-foreground description-hover">
                         {feature.description}
                       </p>
                     </div>
